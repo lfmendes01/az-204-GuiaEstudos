@@ -1,0 +1,211 @@
+# [AZ-204 Developing Solutions for Azure Certification 2021](https://www.udemy.com/course/exam-microsoft-azure-dev/)
+
+### Section 3: Develop Azure compute solutions - Virtual Machines
+
+- when VM is deployed, these are also created
+  - virtual network
+  - disk storage
+  - network interface, which acts as a virtual NIC
+  - public and private IP addresses
+  - network security group, acts as a firewall for the VM
+- hosting a .NET Core web app on a Windows VM
+  - create VM
+  - add a port 80 inbound NSG rule
+  - go to the NI resource, IP Configurations, and disassociate the public IP from the NI
+  - assign a DNS name to the IP address resource and set the IP address to static
+  - go back to the NI and reassociate the public IP address
+  - log into VM and set it up as an IIS web server
+  - install Management Service and add an IIS Manager rule that enables connections on port 8172
+  - add a port 8172 inbound NSG rule
+  - install .NET Core X.X Hosting Bundle, where X.X is the .NET Core version of your web app
+  - install Web Deploy (which allows an IIS server to deploy apps, I guess?)
+  - create a .NET Core project, right-click on the project and click publish
+  - create a publish profile, choosing the VM you created
+  - publish the app!
+- hosting a .NET Core web app on a Linux VM
+  - you can use PUTTY to log into the VM
+  - Kestrel web server
+    - cross-platform server for .NET Core
+    - it's what runs .NET Core apps on Linux machines/VMs (instead of IIS)
+    - when running a Linux .NET Core project locally, you can run it either on IIS Express or Kestrel
+  - you can also use NGINX
+  - publish the project to a folder
+  - copy the folder onto the VM (using WinSCP)
+  - install the Core SDK on the VM
+  - `wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb`
+    `sudo dpkg -i packages-microsoft-prod.deb`
+    `sudo apt-get update; \`
+    `sudo apt-get install -y apt-transport-https && \`
+    `sudo apt-get update && \`
+    `sudo apt-get install -y dotnet-sdk-3.1`
+- creating a custom VM image
+  - start by creating a VM and installing on it all the software/code you want your VMs to have
+  - use Sysprep to remove user data and generalize the VM
+  - stop the VM
+  - create an image using the capture button
+  - creating the image is a destructive process
+- Azure Resource Manager templates
+  - it's a JSON script
+  - can be used to create VMs, storage accounts, SQL DBs, etc.
+  - there are ready-made templates on the Marketplace
+  - you can set a dependsOn property for a resource in the JSON
+- Azure CLI
+  - you need a storage account to use Cloud Shell
+  - CLI commands
+    - create resource group: `az group create --name [RG name] --location [location]`
+    - create VM: `az vm create --resource-group [RG name] --name [VM name] --image [image name] --admin-username [user name]`
+      - when this command is run, you'll be prompted for a password
+  - PowerShell commands
+    - create resource group: `New-AzResourceGroup -Name new-vm-grp -Location EastUS`
+    - create VM: `New-AzVm -ResourceGroupName "new-vm-grp" -Name "demovm1" -Location "East US" -VirtualNetworkName "demo-network" -SubnetName "subnetA" -SecurityGroupName "myNSG" -PublicIpAddressName "new-ip" -OpenPorts 80,3389`
+- Azure backup service for VMs
+  - data is backed up to Recovery Services vault, which is a resource in the same region as the VM
+  - only backs up changes since the last backup
+  - backup policy sets frequency, how long you want the data backed up for and which recovery points you always want to keep (let's say, the recovery point exactly a year ago)
+  - recovery points are created with every backup
+  - you can choose to recover certain files, the entire VM or a disk
+  - types of snapshots
+    - application consistent: backs everything up, including pending I/O operations
+    - file-system consistent: backups up all the files at the same time
+    - crash consistent: happens if the VM shuts down during the backup
+
+### Section 4: Develop Azure compute solutions - Azure Web Apps and Azure Functions
+
+- Azure Web App Service
+  - supported languages: .NET, .NET Core, Java, Python, Node.js, Ruby
+  - it's a PaaS, you don't manage the VM/DBs your app runs on
+  - it has scaling
+  - high security
+  - DevOps capabilities like continuous deployment
+- App Service Plan
+  - your app lives on an App Service Plan (which is a resource)
+  - free: 10 apps, 1GB disk space, 60 CPU minutes/day
+  - shared: 100 apps, 1GB, 240 CPU minutes/day
+  - basic: unlimited apps, 10GB, unlimited CPU minutes/day, 3 maximum instances
+    - maximum instances: the number of VMs you can have on the plan to run your apps, the requests get balanced between the instances
+  - all web apps on a plan have to be in the same region as the plan
+  - all web apps on a plan have to have the same underlying OS
+- Azure Web App logging
+  - types of logging
+    - app logging: logs generated by your app
+    - web server logging: records HTTP requests
+    - detailed error messages: stores .htm error pages that would've gone to the client
+    - deployment logging: errors that occur during publish
+  - logs are streamed in real time
+  - you can access the stream through an FTP URL of from the log stream page on your web app resource
+- you can enable continuous deployment with GitHub Actions by linking your web app to a GitHub repo
+  - if you link your web app to a GitHub repo, continuous deployment will be automatically implemented
+- Web App CLI commands
+  - `$plan="plan-name"`
+  - `$appname="app-name"`
+  - `$repoulr="https://github.com/[username]/[repo name]"`
+  - `az group create --location westeurope --name [group name]`
+  - `az appservice plan create --name $plan --resource-group [group name] --sku B1`
+  - `az webapp create --name $appname --resource-group [group name] --plan $plan`
+  - `az webapp deployment source config --name $appname --resource-group [group name] --repo-url $repourl --branch master --manual-integration`
+  - `manual-integration`: you have to trigger a deployment, no continuous deployment on code change
+- custom domain
+  - buy a domain name
+  - go to the custom domains page on the web app resource and add custom domain
+  - set the custom domain to the name you bought and save the custom domain
+  - on the domain provider site you have to have a CNAME record that links your original web app URL (that Azure assigns) to your new domain
+  - SSL custom domain
+    - go to TLS/SSL settings and create an app service managed certificate
+    - add SSL binding (new certificate to custom domain)
+  - CORS: cross-origin resource sharing
+    - browsers notice when a page is trying to request data from a different domain, and they block this from happening
+    - from the CORS page on the web app resource (that gets requests) you can add domains that are allowed to make requests
+    - CLI command: `az webapp cors add -g [group name] -n [app name] --allowed-origins [domain that makes requests to this web app]`
+- deployment slots
+  - deploy multiple versions of the same app to different environments
+  - each environment is a "slot" (e.g. production, staging, etc.)
+  - each slot has its own DNS name (its own URL)
+  - you can swap slots
+  - only available on standard app service plans or higher
+  - you use a different publish profile on your project for each environment/slot
+  - PowerShell commands
+    - `$location="Central US"`
+    - `$resourcegrp="newgrp"`
+    - `$webappname="demoapp4040"`
+    - `New-AzResourceGroup -Name $resourcegrp -Location $location`
+    - `New-AzAppServicePlan -Name $webappname -Location $location -ResourceGroupName $resourcegrp -Tier Standard`
+    - `New-AzWebApp -Name $webappname -Location $location -ResourceGroupName $resourcegrp -AppServicePlan $webappname`
+    - `New-AzWebAppSlot -Name $webappname -ResourceGroupName $resourcegrp -Slot "staging"`
+- autoscaling
+  - the VM that your app is running on
+  - on a basic app service plan, you can have up to 3 VMs for scaling, but you have to manually select to add/remove a machine
+  - on standard tier or higher, VM creation/deallocation (scale out, scale in) is triggered automatically based on rules you create
+  - called "custom autoscaling"
+  - you create rules on the app service plan resource
+  - you can base your rules not only on the service plan metrics but also metrics that come from other types of resources
+    - storage queue
+    - service buss queue
+    - etc.
+  - metrics you can create rules based on
+    - CPU %
+    - data in/out
+    - HTTP queue length
+    - memory %
+    - etc.
+  - cool-down period: the time it takes for the new VM to be added/removed once an autoscaling rule threshold has been reached
+- connection strings
+  - needed to connect an Azure web app to an Azure SQL DB
+  - in your API project, create a service that defines a SqlConnection, make a connection, runs SQL statements and then closes the connection
+    - this is where you paste in the DB connection string, username, password, etc.
+    - OR you can add the full connection string from Azure into appsettings and then pass the connection string into your service
+    - OR you can store the full connection string on the Configuration page for the web app
+  - install the NuGet package System.Data.SqlClient (or whatever you package you want to use for whatever framework you're using)
+  - inject the service (along with MVC or whatever you're using)
+  - create a controller to get the data and display it in a view component
+- App Configuration resource
+  - used to store connection strings on Azure so they're outside of an appsettings file and can be used by multiple web apps at once
+  - you create key-value pairs in this resource
+  - you need the Azure App Configuration NuGet package in your app
+  - you add the connection string for the key you want to access (copied from Azure) into your code
+  - you can also add feature flags in the App Configuration resource
+    - methods/views can have a FeatureGate attribute on it with a specific feature flag value (that you define in an enum) assigned to it
+- Azure Functions
+  - languages: C#, Java, JavaScript, Python, PowerShell
+  - ways to invoke a function
+    - HTTP request
+      - GET
+      - POST
+    - timer
+    - blob events
+    - queue storage events
+    - event hub events
+  - when you create the function app you select the language the functions will be written in
+  - plans
+    - you can add the function to an app service plan
+    - or you can use a consumption-based plan
+    - premium plan: pre-warmed instances and autoscaling compute
+  - you can enable Application Insights on the function app
+  - adding functions to the function app
+    - you can pick a template based on a trigger
+    - the function is a C# script file (if the function app you created is in C# and you're editing in the Azure editor)
+    - the function.json file has the script complied to JSON for Azure to deploy the function
+    - you can test in Azure or with Postman
+    - you can only test GETs though a regular browser
+    - if you develop the function in VS then publishing the function to Azure only pushes up the function.json file since that's the only file Azure needs to deploy the function
+
+### Section 5: Develop Azure compute solutions - Docker, Azure Container Instances, Kubernetes
+
+- benefits of containers
+  - test app in isolation, no clash between dependencies when two instances are running on the same machine/VM
+  - each container has its own set of dependencies, independent of any other containers on the same machine
+  - portability, you can move containers between VMs easily, just deploy the container onto a different VM (assuming it has the same base OS)
+  - containers are lightweight
+- image: the set of instructions, the template, for creating the container
+  - the image is made up of many layers
+  - the base layer is made up of OS-level configurations
+  - an image can only be run on the OS that the base layer is for
+- container: the runnable instance of an image on which your app can run
+- once you install the Docker runtime on your machine (Linux or Windows) you can deploy containers based on an image
+- Docker Hub is a website with tons of pre-made Docker images
+- if you want to access a website being run in a Docker container, you have to specify a port mapping when you deploy the container
+  - the container is isolated from the machine, including its network, that's why you have to tell Docker which port you want it to forward the site to so you can access it from the machine's browser
+  - you can then create an inbound traffic rule for the VM so that you can access the app -> that the container is running -> on the VM -> through the browser on your physical machine
+- Docker + Windows Subsystem for Linux
+  - installing Docker desktop on a Windows machine automatically installs Windows Subsystem for Linux
+  - WSL creates a Linux environment on the machine, which Docker then runs on
+- Windows-based containers are way larger than Linux-based containers
