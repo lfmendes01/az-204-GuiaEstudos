@@ -1,101 +1,37 @@
-# [AZ-204 Developing Solutions for Azure Certification 2021](https://www.udemy.com/course/exam-microsoft-azure-dev/)
+# AZ-204 Desenvolvendo soluções para certificação Azure
 
-### Section 3: Develop Azure compute solutions - Virtual Machines
+### Seção 1: Desenvolver soluções de computação do Azure – Aplicativos Web do Azure e Funções do Azure
 
-- when VM is deployed, these are also created
-  - virtual network
-  - disk storage
-  - network interface, which acts as a virtual NIC
-  - public and private IP addresses
-  - network security group, acts as a firewall for the VM
-- hosting a .NET Core web app on a Windows VM
-  - create VM
-  - add a port 80 inbound NSG rule
-  - go to the NI resource, IP Configurations, and disassociate the public IP from the NI
-  - assign a DNS name to the IP address resource and set the IP address to static
-  - go back to the NI and reassociate the public IP address
-  - log into VM and set it up as an IIS web server
-  - install Management Service and add an IIS Manager rule that enables connections on port 8172
-  - add a port 8172 inbound NSG rule
-  - install .NET Core X.X Hosting Bundle, where X.X is the .NET Core version of your web app
-  - install Web Deploy (which allows an IIS server to deploy apps, I guess?)
-  - create a .NET Core project, right-click on the project and click publish
-  - create a publish profile, choosing the VM you created
-  - publish the app!
-- hosting a .NET Core web app on a Linux VM
-  - you can use PUTTY to log into the VM
-  - Kestrel web server
-    - cross-platform server for .NET Core
-    - it's what runs .NET Core apps on Linux machines/VMs (instead of IIS)
-    - when running a Linux .NET Core project locally, you can run it either on IIS Express or Kestrel
-  - you can also use NGINX
-  - publish the project to a folder
-  - copy the folder onto the VM (using WinSCP)
-  - install the Core SDK on the VM
-  - `wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb`
-    `sudo dpkg -i packages-microsoft-prod.deb`
-    `sudo apt-get update; \`
-    `sudo apt-get install -y apt-transport-https && \`
-    `sudo apt-get update && \`
-    `sudo apt-get install -y dotnet-sdk-3.1`
-- creating a custom VM image
-  - start by creating a VM and installing on it all the software/code you want your VMs to have
-  - use Sysprep to remove user data and generalize the VM
-  - stop the VM
-  - create an image using the capture button
-  - creating the image is a destructive process
-- Azure Resource Manager templates
-  - it's a JSON script
-  - can be used to create VMs, storage accounts, SQL DBs, etc.
-  - there are ready-made templates on the Marketplace
-  - you can set a dependsOn property for a resource in the JSON
-- Azure CLI
-  - you need a storage account to use Cloud Shell
-  - CLI commands
-    - create resource group: `az group create --name [RG name] --location [location]`
-    - create VM: `az vm create --resource-group [RG name] --name [VM name] --image [image name] --admin-username [user name]`
-      - when this command is run, you'll be prompted for a password
-  - PowerShell commands
-    - create resource group: `New-AzResourceGroup -Name new-vm-grp -Location EastUS`
-    - create VM: `New-AzVm -ResourceGroupName "new-vm-grp" -Name "demovm1" -Location "East US" -VirtualNetworkName "demo-network" -SubnetName "subnetA" -SecurityGroupName "myNSG" -PublicIpAddressName "new-ip" -OpenPorts 80,3389`
-- Azure backup service for VMs
-  - data is backed up to Recovery Services vault, which is a resource in the same region as the VM
-  - only backs up changes since the last backup
-  - backup policy sets frequency, how long you want the data backed up for and which recovery points you always want to keep (let's say, the recovery point exactly a year ago)
-  - recovery points are created with every backup
-  - you can choose to recover certain files, the entire VM or a disk
-  - types of snapshots
-    - application consistent: backs everything up, including pending I/O operations
-    - file-system consistent: backups up all the files at the same time
-    - crash consistent: happens if the VM shuts down during the backup
+- Serviço de Aplicativo Web do Azure
 
-### Section 4: Develop Azure compute solutions - Azure Web Apps and Azure Functions
+  - linguagens suportadas: .NET, .NET Core, Java, Python, Node.js, Ruby
+  - é um PaaS, você não gerencia as VMs/DBs em que seu aplicativo é executado
+  - tem escala
+  - alta seguranca
+  - Capacidades DevOps como implantação contínua
+- Plano de serviço de aplicativo
 
-- Azure Web App Service
-  - supported languages: .NET, .NET Core, Java, Python, Node.js, Ruby
-  - it's a PaaS, you don't manage the VM/DBs your app runs on
-  - it has scaling
-  - high security
-  - DevOps capabilities like continuous deployment
-- App Service Plan
-  - your app lives on an App Service Plan (which is a resource)
-  - free: 10 apps, 1GB disk space, 60 CPU minutes/day
-  - shared: 100 apps, 1GB, 240 CPU minutes/day
-  - basic: unlimited apps, 10GB, unlimited CPU minutes/day, 3 maximum instances
-    - maximum instances: the number of VMs you can have on the plan to run your apps, the requests get balanced between the instances
-  - all web apps on a plan have to be in the same region as the plan
-  - all web apps on a plan have to have the same underlying OS
-- Azure Web App logging
-  - types of logging
-    - app logging: logs generated by your app
-    - web server logging: records HTTP requests
-    - detailed error messages: stores .htm error pages that would've gone to the client
-    - deployment logging: errors that occur during publish
-  - logs are streamed in real time
-  - you can access the stream through an FTP URL of from the log stream page on your web app resource
-- you can enable continuous deployment with GitHub Actions by linking your web app to a GitHub repo
-  - if you link your web app to a GitHub repo, continuous deployment will be automatically implemented
+  - seu aplicativo depende de um plano de serviço de aplicativo (que é um recurso)
+  - grátis: 10 aplicativos, 1 GB de espaço em disco, 60 minutos de CPU/dia
+  - compartilhado: 100 aplicativos, 1 GB, 240 minutos de CPU/dia
+  - básico: aplicativos ilimitados, 10 GB, minutos/dia de CPU ilimitados, 3 instâncias no máximo
+    - máximo de instâncias: o número de VMs que você pode ter no plano para executar seus aplicativos, as solicitações são equilibradas entre as instâncias
+  - todos os aplicativos da web em um plano precisam estar na mesma região do plano
+  - todos os aplicativos da web em um plano precisam ter o mesmo sistema operacional subjacente
+- Registro em log do aplicativo Web do Azure
+
+  - tipos de registro
+    - registro de aplicativos: registros gerados pelo seu aplicativo
+    - registro do servidor web: registra solicitações HTTP
+    - mensagens de erro detalhadas: armazena páginas de erro .htm que teriam ido para o cliente
+    - registro de implantação: erros que ocorrem durante a publicação
+  - os logs são transmitidos em tempo real
+  - você pode acessar o fluxo por meio de um URL FTP na página de fluxo de log no recurso do seu aplicativo da web
+- você pode habilitar a implantação contínua com GitHub Actions vinculando seu aplicativo web a um repositório GitHub
+
+  - se você vincular seu aplicativo web a um repositório GitHub, a implantação contínua será implementada automaticamente
 - Web App CLI commands
+
   - `$plan="plan-name"`
   - `$appname="app-name"`
   - `$repoulr="https://github.com/[username]/[repo name]"`
@@ -103,26 +39,27 @@
   - `az appservice plan create --name $plan --resource-group [group name] --sku B1`
   - `az webapp create --name $appname --resource-group [group name] --plan $plan`
   - `az webapp deployment source config --name $appname --resource-group [group name] --repo-url $repourl --branch master --manual-integration`
-  - `manual-integration`: you have to trigger a deployment, no continuous deployment on code change
 - custom domain
-  - buy a domain name
-  - go to the custom domains page on the web app resource and add custom domain
-  - set the custom domain to the name you bought and save the custom domain
-  - on the domain provider site you have to have a CNAME record that links your original web app URL (that Azure assigns) to your new domain
-  - SSL custom domain
-    - go to TLS/SSL settings and create an app service managed certificate
-    - add SSL binding (new certificate to custom domain)
-  - CORS: cross-origin resource sharing
-    - browsers notice when a page is trying to request data from a different domain, and they block this from happening
-    - from the CORS page on the web app resource (that gets requests) you can add domains that are allowed to make requests
-    - CLI command: `az webapp cors add -g [group name] -n [app name] --allowed-origins [domain that makes requests to this web app]`
+- compre um nome de domínio
+
+  - vá para a página de domínios personalizados no recurso do aplicativo da web e adicione o domínio personalizado
+  - defina o domínio personalizado com o nome que você comprou e salve o domínio personalizado
+  - no site do provedor de domínio, você precisa ter um registro CNAME que vincule a URL original do seu aplicativo Web (que o Azure atribui) ao seu novo domínio
+  - Domínio personalizado SSL
+    - acesse as configurações de TLS/SSL e crie um certificado gerenciado de serviço de aplicativo
+    - adicionar ligação SSL (novo certificado ao domínio personalizado)
+  - CORS: compartilhamento de recursos entre origens
+    - os navegadores percebem quando uma página está tentando solicitar dados de um domínio diferente e impedem que isso aconteça
+    - na página CORS no recurso do aplicativo web (que recebe solicitações), você pode adicionar domínios que têm permissão para fazer solicitações
+    - Comando CLI: `az webapp cors add -g [nome do grupo] -n [nome do aplicativo] --allowed-origins [domínio que faz solicitações para este aplicativo web]`
 - deployment slots
-  - deploy multiple versions of the same app to different environments
-  - each environment is a "slot" (e.g. production, staging, etc.)
-  - each slot has its own DNS name (its own URL)
-  - you can swap slots
-  - only available on standard app service plans or higher
-  - you use a different publish profile on your project for each environment/slot
+
+  - implantar várias versões do mesmo aplicativo em ambientes diferentes
+  - cada ambiente é um "slot" (por exemplo, produção, preparação, etc.)
+  - cada slot tem seu próprio nome DNS (seu próprio URL)
+  - você pode trocar slots
+  - disponível apenas em planos de serviço de aplicativo padrão ou superiores
+  - você usa um perfil de publicação diferente em seu projeto para cada ambiente/slot
   - PowerShell commands
     - `$location="Central US"`
     - `$resourcegrp="newgrp"`
@@ -132,80 +69,84 @@
     - `New-AzWebApp -Name $webappname -Location $location -ResourceGroupName $resourcegrp -AppServicePlan $webappname`
     - `New-AzWebAppSlot -Name $webappname -ResourceGroupName $resourcegrp -Slot "staging"`
 - autoscaling
-  - the VM that your app is running on
-  - on a basic app service plan, you can have up to 3 VMs for scaling, but you have to manually select to add/remove a machine
-  - on standard tier or higher, VM creation/deallocation (scale out, scale in) is triggered automatically based on rules you create
-  - called "custom autoscaling"
-  - you create rules on the app service plan resource
-  - you can base your rules not only on the service plan metrics but also metrics that come from other types of resources
-    - storage queue
-    - service buss queue
-    - etc.
-  - metrics you can create rules based on
+
+  - a VM em que seu aplicativo está sendo executado
+  - em um plano básico de serviço de aplicativo, você pode ter até três VMs para escalabilidade, mas precisa selecionar manualmente para adicionar/remover uma máquina
+  - no nível padrão ou superior, a criação/desalocação de VM (expansão horizontal, redução horizontal) é acionada automaticamente com base nas regras que você cria
+  - chamado de "escalonamento automático personalizado"
+  - você cria regras no recurso do plano de serviço de aplicativo
+  - você pode basear suas regras não apenas nas métricas do plano de serviço, mas também nas métricas provenientes de outros tipos de recursos
+    - fila de armazenamento
+    - fila de ônibus de serviço
+    - etc
+  - métricas nas quais você pode criar regras com base
     - CPU %
-    - data in/out
-    - HTTP queue length
-    - memory %
-    - etc.
-  - cool-down period: the time it takes for the new VM to be added/removed once an autoscaling rule threshold has been reached
-- connection strings
-  - needed to connect an Azure web app to an Azure SQL DB
-  - in your API project, create a service that defines a SqlConnection, make a connection, runs SQL statements and then closes the connection
-    - this is where you paste in the DB connection string, username, password, etc.
-    - OR you can add the full connection string from Azure into appsettings and then pass the connection string into your service
-    - OR you can store the full connection string on the Configuration page for the web app
-  - install the NuGet package System.Data.SqlClient (or whatever you package you want to use for whatever framework you're using)
-  - inject the service (along with MVC or whatever you're using)
-  - create a controller to get the data and display it in a view component
-- App Configuration resource
-  - used to store connection strings on Azure so they're outside of an appsettings file and can be used by multiple web apps at once
-  - you create key-value pairs in this resource
-  - you need the Azure App Configuration NuGet package in your app
-  - you add the connection string for the key you want to access (copied from Azure) into your code
-  - you can also add feature flags in the App Configuration resource
-    - methods/views can have a FeatureGate attribute on it with a specific feature flag value (that you define in an enum) assigned to it
+    - entrada/saída de dados
+    - Comprimento da fila HTTP
+      -% de memória
+    - etc
+  - período de resfriamento: o tempo que leva para a nova VM ser adicionada/removida depois que um limite de regra de escalonamento automático for atingido
+- cadeias de conexão
+
+  - necessário para conectar um aplicativo Web do Azure a um banco de dados SQL do Azure
+  - no seu projeto de API, crie um serviço que defina um SqlConnection, faça uma conexão, execute instruções SQL e depois feche a conexão
+    - é aqui que você cola a string de conexão do banco de dados, nome de usuário, senha, etc.
+    - OU você pode adicionar a cadeia de conexão completa do Azure em appsettings e, em seguida, passar a cadeia de conexão para o seu serviço
+    - OU você pode armazenar a cadeia de conexão completa na página Configuração do aplicativo Web
+  - instale o pacote NuGet System.Data.SqlClient (ou qualquer pacote que você queira usar para qualquer estrutura que estiver usando)
+  - injete o serviço (junto com o MVC ou o que você estiver usando)
+  - crie um controlador para obter os dados e exibi-los em um componente de visualização
+- Recurso de configuração de aplicativos
+
+  - usado para armazenar cadeias de conexão no Azure para que fiquem fora de um arquivo appsettings e possam ser usadas por vários aplicativos Web ao mesmo tempo
+  - você cria pares de valores-chave neste recurso
+  - você precisa do pacote NuGet de configuração de aplicativo do Azure em seu aplicativo
+  - você adiciona a string de conexão da chave que deseja acessar (copiada do Azure) em seu código
+  - você também pode adicionar sinalizadores de recursos no recurso de configuração de aplicativos
+    - métodos/visualizações podem ter um atributo FeatureGate com um valor de sinalizador de recurso específico (que você define em uma enumeração) atribuído a ele
 - Azure Functions
-  - languages: C#, Java, JavaScript, Python, PowerShell
-  - ways to invoke a function
-    - HTTP request
-      - GET
-      - POST
-    - timer
-    - blob events
-    - queue storage events
-    - event hub events
-  - when you create the function app you select the language the functions will be written in
-  - plans
-    - you can add the function to an app service plan
-    - or you can use a consumption-based plan
-    - premium plan: pre-warmed instances and autoscaling compute
-  - you can enable Application Insights on the function app
-  - adding functions to the function app
-    - you can pick a template based on a trigger
-    - the function is a C# script file (if the function app you created is in C# and you're editing in the Azure editor)
-    - the function.json file has the script complied to JSON for Azure to deploy the function
-    - you can test in Azure or with Postman
-    - you can only test GETs though a regular browser
-    - if you develop the function in VS then publishing the function to Azure only pushes up the function.json file since that's the only file Azure needs to deploy the function
 
-### Section 5: Develop Azure compute solutions - Docker, Azure Container Instances, Kubernetes
+  - linguagens: C#, Java, JavaScript, Python, PowerShell
+  - maneiras de invocar uma função
+    - solicitação HTTP
+      - PEGAR
+      - PUBLICAR
+    - cronômetro
+    - eventos de blob
+    - eventos de armazenamento de fila
+    - eventos do centro de eventos
+  - ao criar o aplicativo de funções, você seleciona o idioma em que as funções serão escritas
+  - planos
+    - você pode adicionar a função a um plano de serviço de aplicativo
+    - ou você pode usar um plano baseado em consumo
+    - plano premium: instâncias pré-aquecidas e computação com escalonamento automático
+  - você pode habilitar o Application Insights no aplicativo de funções
+  - adicionando funções ao aplicativo de funções
+    - você pode escolher um modelo baseado em um gatilho
+    - a função é um arquivo de script C# (se o aplicativo de funções que você criou estiver em C# e você estiver editando no editor do Azure)
+    - o arquivo function.json tem o script em conformidade com JSON para o Azure implantar a função
+    - você pode testar no Azure ou com Postman
+    - você só pode testar GETs através de um navegador normal
+    - se você desenvolver a função no VS, publicar a função no Azure apenas enviará o arquivo function.json, pois esse é o único arquivo que o Azure precisa para implantar a função
 
-- benefits of containers
-  - test app in isolation, no clash between dependencies when two instances are running on the same machine/VM
-  - each container has its own set of dependencies, independent of any other containers on the same machine
-  - portability, you can move containers between VMs easily, just deploy the container onto a different VM (assuming it has the same base OS)
-  - containers are lightweight
-- image: the set of instructions, the template, for creating the container
-  - the image is made up of many layers
-  - the base layer is made up of OS-level configurations
-  - an image can only be run on the OS that the base layer is for
-- container: the runnable instance of an image on which your app can run
-- once you install the Docker runtime on your machine (Linux or Windows) you can deploy containers based on an image
-- Docker Hub is a website with tons of pre-made Docker images
-- if you want to access a website being run in a Docker container, you have to specify a port mapping when you deploy the container
-  - the container is isolated from the machine, including its network, that's why you have to tell Docker which port you want it to forward the site to so you can access it from the machine's browser
-  - you can then create an inbound traffic rule for the VM so that you can access the app -> that the container is running -> on the VM -> through the browser on your physical machine
-- Docker + Windows Subsystem for Linux
-  - installing Docker desktop on a Windows machine automatically installs Windows Subsystem for Linux
-  - WSL creates a Linux environment on the machine, which Docker then runs on
-- Windows-based containers are way larger than Linux-based containers
+### Section 2: Develop Azure compute solutions
+
+- benefícios dos contêineres
+- teste o aplicativo isoladamente, sem conflito entre dependências quando duas instâncias estão em execução na mesma máquina/VM
+- cada contêiner possui seu próprio conjunto de dependências, independente de quaisquer outros contêineres na mesma máquina
+- portabilidade, você pode mover contêineres entre VMs facilmente, basta implantar o contêiner em uma VM diferente (assumindo que ele tenha o mesmo sistema operacional base)
+- os recipientes são leves
+- imagem: o conjunto de instruções, o modelo, para a criação do container
+  - a imagem é composta por muitas camadas
+  - a camada base é composta de configurações em nível de sistema operacional
+  - uma imagem só pode ser executada no sistema operacional ao qual a camada base se destina
+- container: a instância executável de uma imagem na qual seu aplicativo pode ser executado
+- depois de instalar o tempo de execução do Docker em sua máquina (Linux ou Windows), você pode implantar contêineres com base em uma imagem
+- Docker Hub é um site com toneladas de imagens Docker pré-fabricadas
+- se quiser acessar um site que está sendo executado em um contêiner Docker, você deverá especificar um mapeamento de porta ao implantar o contêiner
+  - o contêiner está isolado da máquina, inclusive de sua rede, por isso você deve informar ao Docker para qual porta deseja encaminhar o site para poder acessá-lo a partir do navegador da máquina
+  - você pode então criar uma regra de tráfego de entrada para a VM para poder acessar o aplicativo -> que o contêiner está em execução -> na VM -> através do navegador em sua máquina física
+- Subsistema Docker + Windows para Linux
+  - instalar o Docker Desktop em uma máquina Windows instala automaticamente o Windows Subsystem para Linux
+  - WSL cria um ambiente Linux na máquina, no qual o Docker é executado
+- Os contêineres baseados em Windows são muito maiores que os contêineres baseados em Linux
